@@ -1,0 +1,16 @@
+(lp0
+S'poi'
+p1
+aS'deferral_payments'
+p2
+aS'to_poi_ratio'
+p3
+aS'from_poi_ratio'
+p4
+aS'deferred_income'
+p5
+aS'exercised_stock_options'
+p6
+aS'total_stock_value'
+p7
+a.
