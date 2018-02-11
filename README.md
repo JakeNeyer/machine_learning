@@ -2821,5 +2821,4 @@ https://discussions.udacity.com/t/project-fear-strugging-with-machine-learning-p
 
 https://discussions.udacity.com/t/featureformat-function-not-doing-its-job/192923/2
 
-http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html#sklearn.ensemble.ExtraTreesClassifier
 
