@@ -51,7 +51,7 @@ df.set_index(employees, inplace=True)
 
 ## Data Exploration
 
-Taking a look at our POIs attributes
+Taking a look at what makes up the dataset:
 
 
 ```python
@@ -2153,6 +2153,60 @@ print "Average Shared Receipt with POI (Non-POIs): ", not_poi["shared_receipt_wi
 
 There are some significant differences between POIs and Non-POIs, specificallly in attributes such as salary, bonus, total payments, stock value, email from POI, emails to POI, and emails shared with POIs.
 
+
+```python
+#Number of total data points
+len(df)
+```
+
+
+
+
+    146
+
+
+
+
+```python
+#Number of POI data points
+len(poi)
+```
+
+
+
+
+    18
+
+
+
+
+```python
+#Number of Non-POI data points
+len(not_poi)
+```
+
+
+
+
+    128
+
+
+
+
+```python
+#Number of Features
+len(df.columns)
+```
+
+
+
+
+    21
+
+
+
+There are 146 total data points in this dataset. Of those 146 data points, there are 18 POIs and 128 Non-POI entries. Each entry has 24 different features. 
+
 ## Indentifying Outliers
 
 
@@ -2306,11 +2360,176 @@ salary_outliers
 df.drop(['TOTAL'],inplace=True)
 ```
 
-The TOTAL entry in the dataset was most certainly an outlier. It was actually an accumulation of multiple different entries in the sam dataset, as opposed to a single unique entry. Because of this, I drop it from the dataset in the line above `df.drop(['TOTAL'],inplace=True)`. This will keep it from futher intruding in the data exploration process and moreover, will keep it from ruining the results of the classifiers.
+
+```python
+#Looking at List of Employees
+df.index.tolist()
+```
+
+
+
+
+    ['METTS MARK',
+     'BAXTER JOHN C',
+     'ELLIOTT STEVEN',
+     'CORDES WILLIAM R',
+     'HANNON KEVIN P',
+     'MORDAUNT KRISTINA M',
+     'MEYER ROCKFORD G',
+     'MCMAHON JEFFREY',
+     'HORTON STANLEY C',
+     'PIPER GREGORY F',
+     'HUMPHREY GENE E',
+     'UMANOFF ADAM S',
+     'BLACHMAN JEREMY M',
+     'SUNDE MARTIN',
+     'GIBBS DANA R',
+     'LOWRY CHARLES P',
+     'COLWELL WESLEY',
+     'MULLER MARK S',
+     'JACKSON CHARLENE R',
+     'WESTFAHL RICHARD K',
+     'WALTERS GARETH W',
+     'WALLS JR ROBERT H',
+     'KITCHEN LOUISE',
+     'CHAN RONNIE',
+     'BELFER ROBERT',
+     'SHANKMAN JEFFREY A',
+     'WODRASKA JOHN',
+     'BERGSIEKER RICHARD P',
+     'URQUHART JOHN A',
+     'BIBI PHILIPPE A',
+     'RIEKER PAULA H',
+     'WHALEY DAVID A',
+     'BECK SALLY W',
+     'HAUG DAVID L',
+     'ECHOLS JOHN B',
+     'MENDELSOHN JOHN',
+     'HICKERSON GARY J',
+     'CLINE KENNETH W',
+     'LEWIS RICHARD',
+     'HAYES ROBERT E',
+     'MCCARTY DANNY J',
+     'KOPPER MICHAEL J',
+     'LEFF DANIEL P',
+     'LAVORATO JOHN J',
+     'BERBERIAN DAVID',
+     'DETMERING TIMOTHY J',
+     'WAKEHAM JOHN',
+     'POWERS WILLIAM',
+     'GOLD JOSEPH',
+     'BANNANTINE JAMES M',
+     'DUNCAN JOHN H',
+     'SHAPIRO RICHARD S',
+     'SHERRIFF JOHN R',
+     'SHELBY REX',
+     'LEMAISTRE CHARLES',
+     'DEFFNER JOSEPH M',
+     'KISHKILL JOSEPH G',
+     'WHALLEY LAWRENCE G',
+     'MCCONNELL MICHAEL S',
+     'PIRO JIM',
+     'DELAINEY DAVID W',
+     'SULLIVAN-SHAKLOVITZ COLLEEN',
+     'WROBEL BRUCE',
+     'LINDHOLM TOD A',
+     'MEYER JEROME J',
+     'LAY KENNETH L',
+     'BUTTS ROBERT H',
+     'OLSON CINDY K',
+     'MCDONALD REBECCA',
+     'CUMBERLAND MICHAEL S',
+     'GAHN ROBERT S',
+     'MCCLELLAN GEORGE',
+     'HERMANN ROBERT J',
+     'SCRIMSHAW MATTHEW',
+     'GATHMANN WILLIAM D',
+     'HAEDICKE MARK E',
+     'BOWEN JR RAYMOND M',
+     'GILLIS JOHN',
+     'FITZGERALD JAY L',
+     'MORAN MICHAEL P',
+     'REDMOND BRIAN L',
+     'BAZELIDES PHILIP J',
+     'BELDEN TIMOTHY N',
+     'DURAN WILLIAM D',
+     'THORN TERENCE H',
+     'FASTOW ANDREW S',
+     'FOY JOE',
+     'CALGER CHRISTOPHER F',
+     'RICE KENNETH D',
+     'KAMINSKI WINCENTY J',
+     'LOCKHART EUGENE E',
+     'COX DAVID',
+     'OVERDYKE JR JERE C',
+     'PEREIRA PAULO V. FERRAZ',
+     'STABLER FRANK',
+     'SKILLING JEFFREY K',
+     'BLAKE JR. NORMAN P',
+     'SHERRICK JEFFREY B',
+     'PRENTICE JAMES',
+     'GRAY RODNEY',
+     'PICKERING MARK R',
+     'THE TRAVEL AGENCY IN THE PARK',
+     'NOLES JAMES L',
+     'KEAN STEVEN J',
+     'FOWLER PEGGY',
+     'WASAFF GEORGE',
+     'WHITE JR THOMAS E',
+     'CHRISTODOULOU DIOMEDES',
+     'ALLEN PHILLIP K',
+     'SHARP VICTORIA T',
+     'JAEDICKE ROBERT',
+     'WINOKUR JR. HERBERT S',
+     'BROWN MICHAEL',
+     'BADUM JAMES P',
+     'HUGHES JAMES A',
+     'REYNOLDS LAWRENCE',
+     'DIMICHELE RICHARD G',
+     'BHATNAGAR SANJAY',
+     'CARTER REBECCA C',
+     'BUCHANAN HAROLD G',
+     'YEAP SOON',
+     'MURRAY JULIA H',
+     'GARLAND C KEVIN',
+     'DODSON KEITH',
+     'YEAGER F SCOTT',
+     'HIRKO JOSEPH',
+     'DIETRICH JANET R',
+     'DERRICK JR. JAMES V',
+     'FREVERT MARK A',
+     'PAI LOU L',
+     'BAY FRANKLIN R',
+     'HAYSLETT RODERICK J',
+     'FUGH JOHN L',
+     'FALLON JAMES B',
+     'KOENIG MARK E',
+     'SAVAGE FRANK',
+     'IZZO LAWRENCE L',
+     'TILNEY ELIZABETH A',
+     'MARTIN AMANDA K',
+     'BUY RICHARD B',
+     'GRAMM WENDY L',
+     'CAUSEY RICHARD A',
+     'TAYLOR MITCHELL S',
+     'DONAHUE JR JEFFREY M',
+     'GLISAN JR BEN F']
+
+
+
+Notice the entry:`THE TRAVEL AGENCY IN THE PARK',` this is clearly not an employee. 
+
+
+```python
+#Removing Bad Entry
+df.drop(['THE TRAVEL AGENCY IN THE PARK'],inplace=True)
+```
+
+The TOTAL entry in the dataset was most certainly an outlier. It was actually an accumulation of multiple different entries in the same dataset, as opposed to a single unique entry. Because of this, I drop it from the dataset in the line above `df.drop(['TOTAL'],inplace=True)`. This will keep it from futher intruding in the data exploration process and moreover, will keep it from ruining the results of the classifiers. Similarly, I remove the Travel Agency in the park entry: `df.drop(['THE TRAVEL AGENCY IN THE PARK'],inplace=True)` because it is not a valid employee of the company.
 
 ## Additional Features
 
-There may be some ambiguity in the email features. For example, the total number of emails to, from, and shared with POIs might not be the best indicator for those particular metrics, but rather a more descriptive metric may be a ratio of the total emails sent, recieved, and shared to the total emails sent to POIs, recieved from POIs, and shared with POIs.
+There may be some ambiguity in the email features. For example, the total number of emails to, from, and shared with POIs might not be the best indicator for those particular metrics, but rather a more descriptive metric may be a ratio of the total emails sent, recieved, and shared to the total emails sent to POIs, recieved from POIs, and shared with POIs. By scaling the emails to ratio of emails, I can achieve a more universal number of communication with POIs.
 
 
 ```python
@@ -2329,7 +2548,15 @@ df['shared_poi_ratio'] = df['shared_receipt_with_poi'].astype(float) / (df['shar
 
 ```
 
-Here are all the features in the dataset at this point.
+## Building Dataset and Feature List
+
+
+```python
+# Creating a dictionary from the dataframe
+df = df.replace(numpy.nan,'NaN', regex=True)
+df.drop('email_address', axis=1, inplace=True)
+my_dataset = df.to_dict('index')
+```
 
 
 ```python
@@ -2341,7 +2568,7 @@ print total_features_list
 ```
 
     ['bonus' 'deferral_payments' 'deferred_income' 'director_fees'
-     'email_address' 'exercised_stock_options' 'expenses' 'from_messages'
+     'exercised_stock_options' 'expenses' 'from_messages'
      'from_poi_to_this_person' 'from_this_person_to_poi' 'loan_advances'
      'long_term_incentive' 'other' 'poi' 'restricted_stock'
      'restricted_stock_deferred' 'salary' 'shared_receipt_with_poi'
@@ -2349,23 +2576,19 @@ print total_features_list
      'to_poi_ratio' 'shared_poi_ratio']
 
 
-## Building Dataset and Feature List
-
-
-```python
-# Creating a dictionary from the dataframe
-df = df.replace(numpy.nan,'NaN', regex=True)
-my_dataset = df.to_dict('index')
-```
-
 I am going to be using the email ratios and total stock value in my feature list for building my machine learning model.
 
 
 ```python
 #Creating my feature list
 
-my_feature_list = ['poi','deferral_payments','to_poi_ratio','from_poi_ratio',
-                   'deferred_income','exercised_stock_options','total_stock_value']
+my_feature_list = ['poi','bonus', 'deferral_payments', 'deferred_income', 'director_fees',
+ 'exercised_stock_options', 'expenses', 'from_messages',
+ 'from_poi_to_this_person', 'from_this_person_to_poi', 'loan_advances',
+ 'long_term_incentive', 'other', 'restricted_stock',
+ 'restricted_stock_deferred' ,'salary', 'shared_receipt_with_poi',
+ 'to_messages', 'total_payments' ,'total_stock_value', 'from_poi_ratio',
+ 'to_poi_ratio', 'shared_poi_ratio']
 
 ```
 
@@ -2375,16 +2598,68 @@ The features I chose for use in my classifiers were poi, total_payments, total_s
 
 
 ```python
+#my_feature_list features/lables
+
 # Extracting features and labels from dataset for local testing
-from sklearn.cross_validation import train_test_split
+from sklearn.cross_validation import StratifiedShuffleSplit
 
 data = featureFormat(my_dataset, my_feature_list, remove_NaN=True, sort_keys = True)
-labels, features = targetFeatureSplit(data)
 
-features_train, features_test, labels_train, labels_test = train_test_split(features, labels)
+labels, features = targetFeatureSplit(data)
+cv = StratifiedShuffleSplit(labels, 1000)
+for train_idx, test_idx in cv:
+    features_train = []
+    features_test = []
+    labels_train = []
+    labels_test = []
+    for ii in train_idx:
+        features_train.append(features[ii])
+        labels_train.append(labels[ii])
+    for jj in test_idx:
+        features_test.append(features[jj])
+        labels_test.append(labels[jj])
 ```
 
-One thing to note here is the effort put into validation. A classic mistake with missing validation is overfitted the data. So here, the labels and features are both split into training and testing sets. This way I can build my classifier on the training data and test it on the testing data. By doing this, I will greatly reduce the chances of overfitting my data.
+One thing to note here is the effort put into validation. A classic mistake with missing validation is overfitted the data. So here, the labels and features are both split into training and testing sets using the `StratifiedShuffleSplit` algorithm provided in the sklearn library. This algorithm merges StratifiedKFold and ShuffleSplit algorithms and returns randomized folds in the dataset. This will ensure that the data will be split for training and testing so that either set will not have an overwhelming percentage of POI or Non-POI entries.
+
+## Feature Selection
+
+
+```python
+from sklearn import tree
+
+# fit an Extra Trees model to the data
+model = tree.DecisionTreeClassifier()
+model.fit(features_train, labels_train)
+
+# display the relative importance of each attribute
+imps = model.feature_importances_
+c=0
+for feature in imps:
+    if feature>.07:
+        print feature
+        print "number: ", my_feature_list[c]
+    c=c+1
+```
+
+    0.20849892191265382
+    number:  poi
+    0.22580645161290314
+    number:  director_fees
+    0.09937888198757766
+    number:  exercised_stock_options
+    0.1785579536234845
+    number:  other
+
+
+
+```python
+#Building Final Feature List
+my_feature_list = ['poi','director_fees','long_term_incentive',
+                   'exercised_stock_options']
+```
+
+To select my features, I used a decision tree. The features with the greatest weights were selected to be used in the proceeding classifers.
 
 ## Building and Testing Classifiers
 
@@ -2394,6 +2669,9 @@ In order to get some sort of baseline, I will start with a simple Naive Bayes cl
 ```python
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+
 
 #Constructing Naive Bayes Classifier
 clf = GaussianNB()
@@ -2403,12 +2681,16 @@ clf.fit(features_train, labels_train)
 nb_pred = clf.predict(features_test)
 
 print accuracy_score(labels_test, nb_pred)
+print "Precision: ",precision_score(labels_test, nb_pred, average='micro')
+print "Recall: ",recall_score(labels_test, nb_pred, average='micro')
 ```
 
-    0.9142857142857143
+    0.7333333333333333
+    Precision:  0.7333333333333333
+    Recall:  0.7333333333333333
 
 
-The NB classifier scored an accuracy of about 80%. I will continue to try other classifiers to see if anything is better.
+The NB classifier scored an accuracy of about 90%. I will continue to try other classifiers to see if anything is better.
 
 Next I wil try a Support Vector Machine to see what kind of results I can yeild.
 
@@ -2424,9 +2706,13 @@ clf.fit(features_train, labels_train)
 svm_pred = clf.predict(features_test)
 
 print accuracy_score(labels_test, svm_pred)
+print "Precision: ",precision_score(labels_test, svm_pred, average='micro')
+print "Recall: ",recall_score(labels_test, svm_pred, average='micro')
 ```
 
-    0.9142857142857143
+    0.8666666666666667
+    Precision:  0.8666666666666667
+    Recall:  0.8666666666666667
 
 
 Wow! This is a pretty good accuracy score. I will try a random forest classifier to see if it is any better.
@@ -2443,12 +2729,16 @@ clf.fit(features_train, labels_train)
 rf_pred = clf.predict(features_test)
 
 print accuracy_score(labels_test, rf_pred)
+print "Precision: ",precision_score(labels_test, rf_pred, average='micro')
+print "Recall: ",recall_score(labels_test, rf_pred, average='micro')
 ```
 
-    0.9428571428571428
+    0.8666666666666667
+    Precision:  0.8666666666666667
+    Recall:  0.8666666666666667
 
 
-The random forest classifier is not bad with over 80% accuracy right out of the box.
+The random forest classifier is not bad with over 90% accuracy right out of the box.
 
 The classifier I ultimately chose to go with was the Random Forest Classifier. It did not have the best accuracy right out of the box, but due to its plethora of tunable parameters, I think it will improve significantly after the tuning process of this project. Random Forest Classifiers(RFCs) are great for supervised classifiation problem sets such as the one we are working with. Essentially, RFCs are a culmination of simpler decision trees. In this case, I think it will be a great fit for our problem set.
 
@@ -2464,7 +2754,7 @@ from scipy.stats import randint as sp_randint
 #Constructing Random Forest
 rfc = RandomForestClassifier()
 
-param_dist = {"max_depth": [1, None],
+param_dist = {"max_depth": [1, 50],
               "max_features": sp_randint(1, len(my_feature_list)),
               "min_samples_split": sp_randint(2,len(my_feature_list)),
               "min_samples_leaf": sp_randint(2, len(my_feature_list)),
@@ -2482,9 +2772,13 @@ clf = gs.best_estimator_
 rs_pred = clf.predict(features_test)
 
 print accuracy_score(labels_test, rs_pred)
+print "Precision: ",precision_score(labels_test, rs_pred, average='micro')
+print "Recall: ",recall_score(labels_test, rs_pred, average='micro')
 ```
 
-    0.9142857142857143
+    0.8666666666666667
+    Precision:  0.8666666666666667
+    Recall:  0.8666666666666667
 
 
 Tuning parameters in machine learning models is sometimes refered to as tuning the hyperparameters as the parameters are often noted as the coefficients of the algorithm. In this case, tuning the hyperparamters means adjusted the way the classifier is constructed by changing items such as the max depth, max features, minimum samples required to split, et cetera. Changing these hyperparameters can significantly affect the way the classifier performs. I used the RandomizedSearchCV algorithm to determine hyperparamters due to its reliable results and perfomance. As opposed to something like GridSearchCV it has extremely good perfomance benefits without much trade-off in effectiveness.
@@ -2496,15 +2790,15 @@ Tuning parameters in machine learning models is sometimes refered to as tuning t
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 
-print "Precision: ",precision_score(labels_test, rf_pred)
-print "Recall: ",recall_score(labels_test, rf_pred)
+print "Precision: ",precision_score(labels_test, rf_pred, average='micro')
+print "Recall: ",recall_score(labels_test, rf_pred, average='micro')
 ```
 
-    Precision:  1.0
-    Recall:  0.3333333333333333
+    Precision:  0.8666666666666667
+    Recall:  0.8666666666666667
 
 
-The two evaluation metrics I chose to use were recall and precision. The recall measures the number of items that can be correctly identified. For example, if there are 10 POIs in this dataset(there are more than that) and this classifier can only say that 3 people are POIs then the recall if 0.33. The precisions measures the accuracy of the indetification. For example, if there are once again 10 POIs in this dataset, if the classifier determines 10 people are POIs, but of those 10 people only 3 ARE actually POIs, then the precision is 0.333.
+The two evaluation metrics I chose to use were recall and precision. The recall measures the number of items that can be correctly identified. For example, if there are 10 POIs in this dataset(there are more than that) and this classifier can only say that 9 people are POIs then the recall if 0.90. The precisions measures the accuracy of the indetification. For example, if there are once again 10 POIs in this dataset, if the classifier determines 10 people are POIs, but of those 10 people only 9 ARE actually POIs, then the precision is 0.90.
 
 
 ## Dumping Classifier for Reuse
@@ -2527,5 +2821,5 @@ https://discussions.udacity.com/t/project-fear-strugging-with-machine-learning-p
 
 https://discussions.udacity.com/t/featureformat-function-not-doing-its-job/192923/2
 
-
+http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html#sklearn.ensemble.ExtraTreesClassifier
 
