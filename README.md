@@ -2525,11 +2525,45 @@ Notice the entry:`THE TRAVEL AGENCY IN THE PARK',` this is clearly not an employ
 df.drop(['THE TRAVEL AGENCY IN THE PARK'],inplace=True)
 ```
 
-The TOTAL entry in the dataset was most certainly an outlier. It was actually an accumulation of multiple different entries in the same dataset, as opposed to a single unique entry. Because of this, I drop it from the dataset in the line above `df.drop(['TOTAL'],inplace=True)`. This will keep it from futher intruding in the data exploration process and moreover, will keep it from ruining the results of the classifiers. Similarly, I remove the Travel Agency in the park entry: `df.drop(['THE TRAVEL AGENCY IN THE PARK'],inplace=True)` because it is not a valid employee of the company.
+
+```python
+#Looking at EUGENE LOCKHART
+df.loc['LOCKHART EUGENE E']
+```
+
+
+
+
+    bonus                          NaN
+    deferral_payments              NaN
+    deferred_income                NaN
+    director_fees                  NaN
+    email_address                  NaN
+    exercised_stock_options        NaN
+    expenses                       NaN
+    from_messages                  NaN
+    from_poi_to_this_person        NaN
+    from_this_person_to_poi        NaN
+    loan_advances                  NaN
+    long_term_incentive            NaN
+    other                          NaN
+    poi                          False
+    restricted_stock               NaN
+    restricted_stock_deferred      NaN
+    salary                         NaN
+    shared_receipt_with_poi        NaN
+    to_messages                    NaN
+    total_payments                 NaN
+    total_stock_value              NaN
+    Name: LOCKHART EUGENE E, dtype: object
+
+
+
+The TOTAL entry in the dataset was most certainly an outlier. It was actually an accumulation of multiple different entries in the same dataset, as opposed to a single unique entry. Because of this, I drop it from the dataset in the line above `df.drop(['TOTAL'],inplace=True)`. This will keep it from futher intruding in the data exploration process and moreover, will keep it from ruining the results of the classifiers. Similarly, I remove the Travel Agency in the park entry: `df.drop(['THE TRAVEL AGENCY IN THE PARK'],inplace=True)` because it is not a valid employee of the company. And finally, I will remove the `EUGENE LOCKHART` because it had no information. It was a completely empty entry.
 
 ## Additional Features
 
-There may be some ambiguity in the email features. For example, the total number of emails to, from, and shared with POIs might not be the best indicator for those particular metrics, but rather a more descriptive metric may be a ratio of the total emails sent, recieved, and shared to the total emails sent to POIs, recieved from POIs, and shared with POIs. By scaling the emails to ratio of emails, I can achieve a more universal number of communication with POIs.
+There may be some ambiguity in the email features. For example, the total number of emails to, from, and shared with POIs might not be the best indicator for those particular metrics, but rather a more descriptive metric may be a ratio of the total emails sent, recieved, and shared to the total emails sent to POIs, recieved from POIs, and shared with POIs.
 
 
 ```python
@@ -2592,7 +2626,7 @@ my_feature_list = ['poi','bonus', 'deferral_payments', 'deferred_income', 'direc
 
 ```
 
-The features I chose for use in my classifiers were poi, total_payments, total_stock_value, from_poi_ratio, to_poi_ratio, and shared_poi_ratio. The selection process for these features was a combination of the exploratory data analysis from above, intuition, and trial-and-error. The POI feature is chosen for obvious reasons, it is the feature we are trying to identify. I chose the total payments and total stock value because of the large disparity between those two features between POIs and Non-POIs. The from_poi_ratio, to_poi_ratio, and shard_poi_ratio were features I created to get a more granular number of how much communcitaion was made between each individual and individuals labled as POIs. For instance, if someone who sends a mssive amounts of emails has 10 emails sent to a POI, it is less important than someone who sends few emails that sends 10 emails to a POI. So what I did was calculate separate ratios for all emails sent, recieved and shared with all emails sent, recieved and shared with POIs; the resulting features are from_poi_ratio, to_poi_ratio, and shard_poi_ratio.
+The from_poi_ratio, to_poi_ratio, and shard_poi_ratio were features I created to get a more granular number of how much communcitaion was made between each individual and individuals labled as POIs. For instance, if someone who sends a massive amounts of emails has 10 emails sent to a POI, it is less important than someone who sends few emails that sends 10 emails to a POI. So what I did was calculate separate ratios for all emails sent, recieved and shared with all emails sent, recieved and shared with POIs; the resulting features are from_poi_ratio, to_poi_ratio, and shard_poi_ratio.
 
 ## Creating Lables and Features for Models
 
@@ -2632,34 +2666,107 @@ from sklearn import tree
 model = tree.DecisionTreeClassifier()
 model.fit(features_train, labels_train)
 
-# display the relative importance of each attribute
-imps = model.feature_importances_
-c=0
-for feature in imps:
-    if feature>.07:
-        print feature
-        print "number: ", my_feature_list[c]
-    c=c+1
+
+#Find and List Top 1o Features Based on Importance
+indices = numpy.argsort(model.feature_importances_)[::-1]
+top_features = 10
+new_indices = indices[:top_features]
+
+
+# Print the feature ranking
+print("Feature ranking:")
+
+new_feature_list = []
+for f in range(top_features):
+    i = my_feature_list[new_indices[f]]
+    new_feature_list.append(i)
+    print("%d. Feature: %s (%f)" % (f + 1, my_feature_list[new_indices[f]], 
+                                    model.feature_importances_[new_indices[f]]))
+
+for i in new_feature_list:
+    print i
+    
+plt.figure()
+plt.title("Feature importances")
+plt.bar(range(top_features), model.feature_importances_[new_indices],
+       color="b", align="center")
+
+plt.xticks(range(top_features), new_indices)
+plt.xlim([-1, top_features])
+plt.show()
 ```
 
-    0.20849892191265382
-    number:  poi
-    0.22580645161290314
-    number:  director_fees
-    0.09937888198757766
-    number:  exercised_stock_options
-    0.1785579536234845
-    number:  other
+    Feature ranking:
+    1. Feature: director_fees (0.326927)
+    2. Feature: other (0.185797)
+    3. Feature: poi (0.149486)
+    4. Feature: from_poi_ratio (0.108436)
+    5. Feature: exercised_stock_options (0.093831)
+    6. Feature: salary (0.064935)
+    7. Feature: to_poi_ratio (0.057143)
+    8. Feature: from_poi_to_this_person (0.013445)
+    9. Feature: restricted_stock_deferred (0.000000)
+    10. Feature: restricted_stock (0.000000)
+    director_fees
+    other
+    poi
+    from_poi_ratio
+    exercised_stock_options
+    salary
+    to_poi_ratio
+    from_poi_to_this_person
+    restricted_stock_deferred
+    restricted_stock
+
+
+
+![png](output_39_1.png)
 
 
 
 ```python
 #Building Final Feature List
-my_feature_list = ['poi','director_fees','long_term_incentive',
-                   'exercised_stock_options']
+for i in range(len(new_feature_list) - 1):
+    if new_feature_list[i] == 'poi':
+        new_feature_list.pop(i)
+
+new_feature_list.insert(0, "poi")
+my_feature_list = new_feature_list
+
+print my_feature_list
 ```
 
-To select my features, I used a decision tree. The features with the greatest weights were selected to be used in the proceeding classifers.
+    ['poi', 'director_fees', 'other', 'from_poi_ratio', 'exercised_stock_options', 'salary', 'to_poi_ratio', 'from_poi_to_this_person', 'restricted_stock_deferred', 'restricted_stock']
+
+
+To select my features, I used a decision tree. The features with the greatest weights were selected to be used in the proceeding classifers. I used a rounded `.1` feature importance as the cutoff. So after rounding up, `from_poi_ratio` was the last feature that I included in my final feature list.
+
+## New Feature Justification
+
+The `from_poi_ratio` here is a great example of why the creation of this feature was justified. It has a consistently high feature importance, and as shown above it has a feature importance of `0.095258`. The ratio of email communication comes in to play here while the overall number of emails is not even in the top ten features.
+
+
+```python
+#Using New Features
+# Extracting features and labels from dataset for local testing
+from sklearn.cross_validation import StratifiedShuffleSplit
+
+data = featureFormat(my_dataset, my_feature_list, remove_NaN=True, sort_keys = True)
+
+labels, features = targetFeatureSplit(data)
+cv = StratifiedShuffleSplit(labels, 1000)
+for train_idx, test_idx in cv:
+    features_train = []
+    features_test = []
+    labels_train = []
+    labels_test = []
+    for ii in train_idx:
+        features_train.append(features[ii])
+        labels_train.append(labels[ii])
+    for jj in test_idx:
+        features_test.append(features[jj])
+        labels_test.append(labels[jj])
+```
 
 ## Building and Testing Classifiers
 
@@ -2685,9 +2792,9 @@ print "Precision: ",precision_score(labels_test, nb_pred, average='micro')
 print "Recall: ",recall_score(labels_test, nb_pred, average='micro')
 ```
 
-    0.7333333333333333
-    Precision:  0.7333333333333333
-    Recall:  0.7333333333333333
+    0.26666666666666666
+    Precision:  0.26666666666666666
+    Recall:  0.26666666666666666
 
 
 The NB classifier scored an accuracy of about 90%. I will continue to try other classifiers to see if anything is better.
@@ -2733,15 +2840,19 @@ print "Precision: ",precision_score(labels_test, rf_pred, average='micro')
 print "Recall: ",recall_score(labels_test, rf_pred, average='micro')
 ```
 
-    0.8666666666666667
-    Precision:  0.8666666666666667
-    Recall:  0.8666666666666667
+    0.8
+    Precision:  0.8
+    Recall:  0.8
 
 
 The random forest classifier is not bad with over 90% accuracy right out of the box.
 
 The classifier I ultimately chose to go with was the Random Forest Classifier. It did not have the best accuracy right out of the box, but due to its plethora of tunable parameters, I think it will improve significantly after the tuning process of this project. Random Forest Classifiers(RFCs) are great for supervised classifiation problem sets such as the one we are working with. Essentially, RFCs are a culmination of simpler decision trees. In this case, I think it will be a great fit for our problem set.
 
+
+## Scaling
+
+I did not scale any of the features in this particular instance. As I am using a Random Forest Classifier, scaling is not necessarily an important step. Unlike SVMs, K-nearest neighbors, and logistic regression where normalization is essential, RFCs do not particularly need scaled features to perform.
 
 ## Tuning Classifier
 
@@ -2755,7 +2866,9 @@ from scipy.stats import randint as sp_randint
 rfc = RandomForestClassifier()
 
 param_dist = {"max_depth": [1, 50],
+              "n_estimators": [1, 10],
               "max_features": sp_randint(1, len(my_feature_list)),
+              "max_leaf_nodes": sp_randint(2, len(my_feature_list)),
               "min_samples_split": sp_randint(2,len(my_feature_list)),
               "min_samples_leaf": sp_randint(2, len(my_feature_list)),
               "bootstrap": [True, False],
@@ -2776,9 +2889,9 @@ print "Precision: ",precision_score(labels_test, rs_pred, average='micro')
 print "Recall: ",recall_score(labels_test, rs_pred, average='micro')
 ```
 
-    0.8666666666666667
-    Precision:  0.8666666666666667
-    Recall:  0.8666666666666667
+    0.8
+    Precision:  0.8
+    Recall:  0.8
 
 
 Tuning parameters in machine learning models is sometimes refered to as tuning the hyperparameters as the parameters are often noted as the coefficients of the algorithm. In this case, tuning the hyperparamters means adjusted the way the classifier is constructed by changing items such as the max depth, max features, minimum samples required to split, et cetera. Changing these hyperparameters can significantly affect the way the classifier performs. I used the RandomizedSearchCV algorithm to determine hyperparamters due to its reliable results and perfomance. As opposed to something like GridSearchCV it has extremely good perfomance benefits without much trade-off in effectiveness.
@@ -2794,8 +2907,8 @@ print "Precision: ",precision_score(labels_test, rf_pred, average='micro')
 print "Recall: ",recall_score(labels_test, rf_pred, average='micro')
 ```
 
-    Precision:  0.8666666666666667
-    Recall:  0.8666666666666667
+    Precision:  0.8
+    Recall:  0.8
 
 
 The two evaluation metrics I chose to use were recall and precision. The recall measures the number of items that can be correctly identified. For example, if there are 10 POIs in this dataset(there are more than that) and this classifier can only say that 9 people are POIs then the recall if 0.90. The precisions measures the accuracy of the indetification. For example, if there are once again 10 POIs in this dataset, if the classifier determines 10 people are POIs, but of those 10 people only 9 ARE actually POIs, then the precision is 0.90.
@@ -2821,4 +2934,5 @@ https://discussions.udacity.com/t/project-fear-strugging-with-machine-learning-p
 
 https://discussions.udacity.com/t/featureformat-function-not-doing-its-job/192923/2
 
+http://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html
 
