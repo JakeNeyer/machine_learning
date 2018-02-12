@@ -2739,7 +2739,7 @@ print my_feature_list
     ['poi', 'director_fees', 'other', 'from_poi_ratio', 'exercised_stock_options', 'salary', 'to_poi_ratio', 'from_poi_to_this_person', 'restricted_stock_deferred', 'restricted_stock']
 
 
-To select my features, I used a decision tree. The features with the greatest weights were selected to be used in the proceeding classifers. I used a rounded `.1` feature importance as the cutoff. So after rounding up, `from_poi_ratio` was the last feature that I included in my final feature list.
+To select my features, I used a decision tree. The features with the top 10 greatest weights were selected to be used in the proceeding classifers.
 
 ## New Feature Justification
 
