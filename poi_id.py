@@ -289,7 +289,7 @@ for train_idx, test_idx in cv:
 
 from sklearn.feature_selection import SelectKBest, f_classif
 
-k_best = SelectKBest(f_classif, k=6)
+k_best = SelectKBest(f_classif, k=7)
 k_best.fit_transform(features_train, labels_train)
 
 mask = k_best.get_support()
@@ -464,6 +464,20 @@ print "Recall: ", recall_score(labels_test, rf_pred, average='micro')
 # ## Dumping Classifier for Reuse
 
 # In[136]:
+
+
+#hard coded features and classifier after trial and error
+my_feature_list = ['poi', 'deferral_payments', 'director_fees', 'exercised_stock_options',
+                   'restricted_stock_deferred', 'total_payments', 'total_stock_value', 'loan_advances']
+
+clf = RandomForestClassifier(bootstrap=False, class_weight=None, criterion='gini',
+            max_depth=None, max_features=3, max_leaf_nodes=None,
+            min_impurity_decrease=0.0, min_impurity_split=None,
+            min_samples_leaf=3, min_samples_split=2,
+            min_weight_fraction_leaf=0.0, n_estimators=10, n_jobs=1,
+            oob_score=False, random_state=None, verbose=0,
+            warm_start=False)
+
 
 
 # Dumping Classifier
