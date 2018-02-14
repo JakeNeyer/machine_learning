@@ -2694,7 +2694,7 @@ print my_feature_list
     ['poi', 'director_fees', 'to_poi_ratio', 'salary', 'from_poi_ratio', 'to_messages', 'loan_advances', 'restricted_stock_deferred', 'from_poi_to_this_person', 'long_term_incentive', 'shared_receipt_with_poi']
 
 
- After several iterations, I found that `k=9` value makes for the best feature selection based on the performance of the classifier.
+ After several iterations, I found that `k=7` value makes for the best feature selection based on the performance of the classifier.
 
 For example:
 
@@ -2735,6 +2735,13 @@ RandomForestClassifier(bootstrap=True, class_weight=None, criterion='entropy',
             warm_start=False)
 	Accuracy: 0.87693	Precision: 0.56790	Recall: 0.32200	F1: 0.41098	F2: 0.35253
 	Total predictions: 15000	True positives:  644	False positives:  490	False negatives: 1356	True negatives: 12510`
+    
+    
+ Additionally, the final feature list  was selected due to its performance. The consideration was based on a combination of the `SelectKBest` and a small amount of trial and error:
+ 
+ `['poi', 'deferral_payments', 'director_fees', 
+ 'exercised_stock_options','restricted_stock_deferred', 
+ 'total_payments', 'total_stock_value', 'loan_advances']` 
 
 ## New Feature Justification
 
