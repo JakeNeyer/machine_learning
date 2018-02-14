@@ -2660,67 +2660,22 @@ One thing to note here is the effort put into validation. A classic mistake with
 
 
 ```python
-from sklearn import tree
+from sklearn.feature_selection import SelectKBest, f_classif
 
-# fit an Extra Trees model to the data
-model = tree.DecisionTreeClassifier()
-model.fit(features_train, labels_train)
+k_best = SelectKBest(f_classif)  
+k_best.fit_transform(features_train, labels_train)
 
+mask = k_best.get_support()
+new_features_list = []
 
-#Find and List Top 1o Features Based on Importance
-indices = numpy.argsort(model.feature_importances_)[::-1]
-top_features = 10
-new_indices = indices[:top_features]
-
-
-# Print the feature ranking
-print("Feature ranking:")
-
-new_feature_list = []
-for f in range(top_features):
-    i = my_feature_list[new_indices[f]]
-    new_feature_list.append(i)
-    print("%d. Feature: %s (%f)" % (f + 1, my_feature_list[new_indices[f]], 
-                                    model.feature_importances_[new_indices[f]]))
-
-for i in new_feature_list:
-    print i
-    
-plt.figure()
-plt.title("Feature importances")
-plt.bar(range(top_features), model.feature_importances_[new_indices],
-       color="b", align="center")
-
-plt.xticks(range(top_features), new_indices)
-plt.xlim([-1, top_features])
-plt.show()
+for bool, feature in zip(mask, my_feature_list):
+    if bool:
+        new_features.append(feature)
+        
+print new_features_list
 ```
 
-    Feature ranking:
-    1. Feature: director_fees (0.326927)
-    2. Feature: other (0.185797)
-    3. Feature: poi (0.149486)
-    4. Feature: from_poi_ratio (0.108436)
-    5. Feature: exercised_stock_options (0.093831)
-    6. Feature: salary (0.064935)
-    7. Feature: to_poi_ratio (0.057143)
-    8. Feature: from_poi_to_this_person (0.013445)
-    9. Feature: restricted_stock_deferred (0.000000)
-    10. Feature: restricted_stock (0.000000)
-    director_fees
-    other
-    poi
-    from_poi_ratio
-    exercised_stock_options
-    salary
-    to_poi_ratio
-    from_poi_to_this_person
-    restricted_stock_deferred
-    restricted_stock
-
-
-
-![png](output_39_1.png)
+    ['poi', 'deferral_payments', 'director_fees', 'from_this_person_to_poi', 'restricted_stock_deferred', 'salary', 'to_messages', 'total_payments', 'total_stock_value', 'to_poi_ratio']
 
 
 
@@ -2736,14 +2691,54 @@ my_feature_list = new_feature_list
 print my_feature_list
 ```
 
-    ['poi', 'director_fees', 'other', 'from_poi_ratio', 'exercised_stock_options', 'salary', 'to_poi_ratio', 'from_poi_to_this_person', 'restricted_stock_deferred', 'restricted_stock']
+    ['poi', 'director_fees', 'to_poi_ratio', 'salary', 'from_poi_ratio', 'to_messages', 'loan_advances', 'restricted_stock_deferred', 'from_poi_to_this_person', 'long_term_incentive', 'shared_receipt_with_poi']
 
 
-To select my features, I used a decision tree. The features with the top 10 greatest weights were selected to be used in the proceeding classifers.
+ After several iterations, I found that `k=9` value makes for the best feature selection based on the performance of the classifier.
+
+For example:
+
+
+`k = 5:
+RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini',
+            max_depth=None, max_features='auto', max_leaf_nodes=None,
+            min_impurity_decrease=0.0, min_impurity_split=None,
+            min_samples_leaf=2, min_samples_split=2,
+            min_weight_fraction_leaf=0.0, n_estimators=10, n_jobs=1,
+            oob_score=False, random_state=None, verbose=0,
+            warm_start=False)
+        Accuracy: 0.82008       Precision: 0.03047      Recall: 0.00550 F1: 0.00932     F2: 0.00658
+        Total predictions: 13000        True positives:   11    False positives:  350   False negatives: 1989   True negatives: 10650`
+
+or:
+ 
+` k = 12:
+RandomForestClassifier(bootstrap=True, class_weight=None, criterion='entropy',
+            max_depth=2, max_features='auto', max_leaf_nodes=None,
+            min_impurity_decrease=0.0, min_impurity_split=None,
+            min_samples_leaf=2, min_samples_split=8,
+            min_weight_fraction_leaf=0.0, n_estimators=10, n_jobs=1,
+            oob_score=False, random_state=None, verbose=0,
+            warm_start=False)
+        Accuracy: 0.86687       Precision: 0.52174      Recall: 0.01800 F1: 0.03480     F2: 0.02231
+        Total predictions: 15000        True positives:   36    False positives:   33   False negatives: 1964   True negatives: 12967`
+        
+        
+`k = 7` makes for a higher performing classifier:
+
+`RandomForestClassifier(bootstrap=False, class_weight=None, criterion='gini',
+            max_depth=None, max_features=3, max_leaf_nodes=None,
+            min_impurity_decrease=0.0, min_impurity_split=None,
+            min_samples_leaf=3, min_samples_split=2,
+            min_weight_fraction_leaf=0.0, n_estimators=10, n_jobs=1,
+            oob_score=False, random_state=None, verbose=0,
+            warm_start=False)
+	Accuracy: 0.87693	Precision: 0.56790	Recall: 0.32200	F1: 0.41098	F2: 0.35253
+	Total predictions: 15000	True positives:  644	False positives:  490	False negatives: 1356	True negatives: 12510`
 
 ## New Feature Justification
 
-The `from_poi_ratio` here is a great example of why the creation of this feature was justified. It has a consistently high feature importance, and as shown above it has a feature importance of `0.095258`. The ratio of email communication comes in to play here while the overall number of emails is not even in the top ten features.
+After using `SelectKBest`, it is apparent the new features, I created were not relevant to improving the classifier.
 
 
 ```python
@@ -2792,14 +2787,14 @@ print "Precision: ",precision_score(labels_test, nb_pred, average='micro')
 print "Recall: ",recall_score(labels_test, nb_pred, average='micro')
 ```
 
-    0.26666666666666666
-    Precision:  0.26666666666666666
-    Recall:  0.26666666666666666
+    0.2857142857142857
+    Precision:  0.2857142857142857
+    Recall:  0.2857142857142857
 
 
-The NB classifier scored an accuracy of about 90%. I will continue to try other classifiers to see if anything is better.
+The NB classifier scored a low accuracy. I will continue to try other classifiers to see if anything is better.
 
-Next I wil try a Support Vector Machine to see what kind of results I can yeild.
+Next, I wil try a Support Vector Machine to see what kind of results I can yeild.
 
 
 ```python
@@ -2817,9 +2812,9 @@ print "Precision: ",precision_score(labels_test, svm_pred, average='micro')
 print "Recall: ",recall_score(labels_test, svm_pred, average='micro')
 ```
 
-    0.8666666666666667
-    Precision:  0.8666666666666667
-    Recall:  0.8666666666666667
+    0.8571428571428571
+    Precision:  0.8571428571428571
+    Recall:  0.8571428571428571
 
 
 Wow! This is a pretty good accuracy score. I will try a random forest classifier to see if it is any better.
@@ -2840,9 +2835,9 @@ print "Precision: ",precision_score(labels_test, rf_pred, average='micro')
 print "Recall: ",recall_score(labels_test, rf_pred, average='micro')
 ```
 
-    0.8
-    Precision:  0.8
-    Recall:  0.8
+    0.8571428571428571
+    Precision:  0.8571428571428571
+    Recall:  0.8571428571428571
 
 
 The random forest classifier is not bad with over 90% accuracy right out of the box.
@@ -2859,25 +2854,19 @@ I did not scale any of the features in this particular instance. As I am using a
 
 ```python
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import GridSearchCV
 from scipy.stats import randint as sp_randint
 
 #Constructing Random Forest
 rfc = RandomForestClassifier()
 
-param_dist = {"max_depth": [1, 50],
-              "n_estimators": [1, 10],
-              "max_features": sp_randint(1, len(my_feature_list)),
-              "max_leaf_nodes": sp_randint(2, len(my_feature_list)),
-              "min_samples_split": sp_randint(2,len(my_feature_list)),
-              "min_samples_leaf": sp_randint(2, len(my_feature_list)),
-              "bootstrap": [True, False],
-              "criterion": ["gini", "entropy"]}
+param_dist = {'max_depth':[None, 2, 4, 6, 8, 10], 
+              'min_samples_split':[2, 4, 6, 8],
+              'min_samples_leaf': [2, 4, 6, 8],
+              'criterion': ["entropy", "gini"]}
 
-# run randomized search
-n_iter_search = 50
-gs = RandomizedSearchCV(rfc, param_distributions=param_dist,
-                                   n_iter=n_iter_search)
+
+gs = GridSearchCV(rfc, param_dist)
 
 gs.fit(features_train, labels_train)
 
@@ -2889,12 +2878,12 @@ print "Precision: ",precision_score(labels_test, rs_pred, average='micro')
 print "Recall: ",recall_score(labels_test, rs_pred, average='micro')
 ```
 
-    0.8
-    Precision:  0.8
-    Recall:  0.8
+    0.8571428571428571
+    Precision:  0.8571428571428571
+    Recall:  0.8571428571428571
 
 
-Tuning parameters in machine learning models is sometimes refered to as tuning the hyperparameters as the parameters are often noted as the coefficients of the algorithm. In this case, tuning the hyperparamters means adjusted the way the classifier is constructed by changing items such as the max depth, max features, minimum samples required to split, et cetera. Changing these hyperparameters can significantly affect the way the classifier performs. I used the RandomizedSearchCV algorithm to determine hyperparamters due to its reliable results and perfomance. As opposed to something like GridSearchCV it has extremely good perfomance benefits without much trade-off in effectiveness.
+Tuning parameters in machine learning models is sometimes refered to as tuning the hyperparameters as the parameters are often noted as the coefficients of the algorithm. In this case, tuning the hyperparamters means adjusted the way the classifier is constructed by changing items such as the max depth, max features, minimum samples required to split, et cetera. Changing these hyperparameters can significantly affect the way the classifier performs. I used the `GridSearchCV` algorithm to determine hyperparamters due to its reliable results and perfomance. `GridSearchCV` runs a search to determine which paramters are most effective.
 
 ## Evaluation Metrics
 
@@ -2907,12 +2896,29 @@ print "Precision: ",precision_score(labels_test, rf_pred, average='micro')
 print "Recall: ",recall_score(labels_test, rf_pred, average='micro')
 ```
 
-    Precision:  0.8
-    Recall:  0.8
+    Precision:  0.8571428571428571
+    Recall:  0.8571428571428571
 
 
 The two evaluation metrics I chose to use were recall and precision. The recall measures the number of items that can be correctly identified. For example, if there are 10 POIs in this dataset(there are more than that) and this classifier can only say that 9 people are POIs then the recall if 0.90. The precisions measures the accuracy of the indetification. For example, if there are once again 10 POIs in this dataset, if the classifier determines 10 people are POIs, but of those 10 people only 9 ARE actually POIs, then the precision is 0.90.
 
+
+## Final Classifier and Features
+
+
+```python
+#hard coded features and classifier after trial and error
+my_feature_list = ['poi', 'deferral_payments', 'director_fees', 'exercised_stock_options',
+                   'restricted_stock_deferred', 'total_payments', 'total_stock_value', 'loan_advances']
+
+clf = RandomForestClassifier(bootstrap=False, class_weight=None, criterion='gini',
+            max_depth=None, max_features=3, max_leaf_nodes=None,
+            min_impurity_decrease=0.0, min_impurity_split=None,
+            min_samples_leaf=3, min_samples_split=2,
+            min_weight_fraction_leaf=0.0, n_estimators=10, n_jobs=1,
+            oob_score=False, random_state=None, verbose=0,
+            warm_start=False)
+```
 
 ## Dumping Classifier for Reuse
 
